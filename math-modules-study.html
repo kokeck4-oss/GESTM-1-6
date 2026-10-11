@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5ef">
+  <title>Math in the Modern World | Modules 1–6 Study Lab</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #182520;
+      --muted: #61716a;
+      --paper: #f7f5ef;
+      --card: #fffefa;
+      --line: #e4e7df;
+      --green: #176b50;
+      --green-dark: #10523d;
+      --green-soft: #e9f4ed;
+      --gold: #e7b75c;
+      --blue-soft: #edf3f7;
+      --shadow: 0 10px 35px rgba(33, 55, 44, .07);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+    body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.65; }
+    a { color: var(--green-dark); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .shell { min-height: 100vh; }
+    .topbar {
+      position: sticky; top: 0; z-index: 10; display: flex; align-items: center;
+      justify-content: space-between; gap: 1rem; padding: .75rem clamp(1rem, 4vw, 3.5rem);
+      background: rgba(255, 254, 250, .94); border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+    .brand { display: flex; align-items: center; gap: .7rem; font-weight: 800; letter-spacing: -.03em; }
+    .brand-mark {
+      display: grid; width: 2.4rem; height: 2.4rem; place-items: center; color: white;
+      background: var(--green); border-radius: .8rem; font-size: 1.2rem;
+    }
+    .top-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: end; gap: .6rem; }
+    .progress-label { color: var(--muted); font-size: .88rem; }
+    .progress-track { width: 7rem; height: .5rem; overflow: hidden; background: #e6e9e2; border-radius: 9rem; }
+    .progress-fill { width: 0; height: 100%; background: var(--green); transition: width .25s ease; }
+    .soft-button, .primary-button {
+      border: 1px solid var(--line); border-radius: 999px; padding: .55rem .95rem;
+      background: var(--card); color: var(--ink); font-weight: 700;
+    }
+    .soft-button:hover { border-color: var(--green); }
+    .primary-button { border-color: var(--green); background: var(--green); color: white; }
+    .primary-button:hover { background: var(--green-dark); }
+    .layout { display: grid; grid-template-columns: 16rem minmax(0, 1fr); max-width: 1440px; margin: 0 auto; }
+    .sidebar { position: sticky; top: 4.2rem; align-self: start; max-height: calc(100vh - 4.2rem); overflow: auto; padding: 1.5rem 1rem 2rem 1.5rem; }
+    .side-title { margin: 0 0 .7rem; color: var(--muted); font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-link { display: flex; align-items: center; gap: .65rem; margin: .25rem 0; padding: .55rem .65rem; border-radius: .7rem; color: #415149; text-decoration: none; font-size: .9rem; }
+    .nav-link:hover, .nav-link:focus-visible { background: var(--green-soft); color: var(--green-dark); }
+    .nav-num { display: grid; width: 1.75rem; height: 1.75rem; flex: 0 0 auto; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: white; font-size: .8rem; font-weight: 800; }
+    .nav-link.done .nav-num { border-color: var(--green); background: var(--green); color: white; }
+    main { min-width: 0; padding: 2rem clamp(1rem, 4vw, 3.5rem) 5rem; }
+    .hero {
+      position: relative; overflow: hidden; padding: clamp(1.5rem, 5vw, 3.4rem);
+      border-radius: 1.6rem; background: #173e32; color: white; box-shadow: var(--shadow);
+    }
+    .hero::after { position: absolute; top: -5rem; right: 4%; color: rgba(255,255,255,.07); content: "∑"; font-size: 24rem; line-height: 1; pointer-events: none; }
+    .eyebrow { position: relative; z-index: 1; color: #c6e4d4; font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { position: relative; z-index: 1; max-width: 780px; margin: .7rem 0 1rem; font-size: clamp(2rem, 5vw, 4.2rem); line-height: 1.05; letter-spacing: -.055em; }
+    .hero p { position: relative; z-index: 1; max-width: 680px; margin: 0; color: #e3eee8; font-size: 1.05rem; }
+    .hero-chips { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.4rem; }
+    .chip { padding: .35rem .7rem; border: 1px solid rgba(255,255,255,.24); border-radius: 99px; color: #f1f7f3; font-size: .8rem; }
+    .intro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .9rem; margin: 1rem 0 2.5rem; }
+    .intro-card { padding: 1.05rem 1.15rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--card); }
+    .intro-card strong { display: block; margin-bottom: .2rem; }
+    .intro-card span { color: var(--muted); font-size: .9rem; }
+    .section-kicker { margin: 2.6rem 0 .25rem; color: var(--green); font-size: .75rem; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+    .overview-title { margin: 0 0 1rem; font-size: clamp(1.55rem, 3vw, 2.25rem); letter-spacing: -.04em; }
+    .overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
+    .overview-card { display: block; min-height: 8.4rem; padding: 1rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--card); color: var(--ink); text-decoration: none; transition: transform .15s, box-shadow .15s; }
+    .overview-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .overview-card b { display: block; margin: .25rem 0; }
+    .overview-card span:last-child { color: var(--muted); font-size: .84rem; }
+    .unit { margin-top: 3rem; padding-top: .4rem; }
+    .unit-heading { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.2rem; }
+    .unit-number { display: grid; width: 3rem; height: 3rem; flex: 0 0 auto; place-items: center; border-radius: 1rem; background: var(--green-soft); color: var(--green-dark); font-size: 1.15rem; font-weight: 900; }
+    .unit-heading h2 { margin: 0; font-size: clamp(1.6rem, 3vw, 2.45rem); line-height: 1.15; letter-spacing: -.045em; }
+    .unit-heading p { margin: .3rem 0 0; color: var(--muted); }
+    .complete-button { margin-left: auto; white-space: nowrap; }
+    .completion-row { display: flex; justify-content: flex-end; margin-top: .85rem; }
+    .lesson-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(250px, .8fr); gap: 1rem; align-items: start; }
+    .stack { display: grid; gap: 1rem; }
+    .card { padding: clamp(1rem, 2.5vw, 1.4rem); border: 1px solid var(--line); border-radius: 1.1rem; background: var(--card); box-shadow: 0 4px 16px rgba(33,55,44,.025); }
+    .card h3 { margin: 0 0 .7rem; font-size: 1.12rem; letter-spacing: -.02em; }
+    .card h4 { margin: 1rem 0 .35rem; font-size: 1rem; }
+    .card p { margin: .45rem 0; }
+    .card ul, .card ol { margin: .55rem 0; padding-left: 1.35rem; }
+    .card li + li { margin-top: .25rem; }
+    .formula {
+      display: block; margin: .7rem 0; padding: .8rem 1rem; overflow-x: auto;
+      border: 1px solid #dce9dd; border-radius: .8rem; background: #f1f7f1;
+      color: #153b2e; font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: .97rem; font-weight: 750; white-space: nowrap;
+    }
+    .callout { margin: .8rem 0; padding: .75rem .9rem; border-left: 4px solid var(--gold); border-radius: .35rem .8rem .8rem .35rem; background: #fff7e8; }
+    .tip { margin: .8rem 0; padding: .75rem .9rem; border-left: 4px solid #72a3c0; border-radius: .35rem .8rem .8rem .35rem; background: var(--blue-soft); }
+    .simple { display: none; margin: .7rem 0 0; padding: .7rem .85rem; border-radius: .75rem; background: #fff4d9; color: #58421c; }
+    body.kid-mode .simple { display: block; }
+    .mini-label { color: var(--muted); font-size: .73rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: .6rem 0; font-size: .91rem; }
+    th, td { padding: .5rem .6rem; border: 1px solid var(--line); text-align: left; }
+    th { background: #f0f4ef; font-weight: 800; }
+    .exercise { border-color: #d9e9dd; background: #fbfefb; }
+    .exercise-head { display: flex; align-items: center; gap: .6rem; margin-bottom: .4rem; }
+    .exercise-head h3 { margin: 0; }
+    .exercise-badge { padding: .15rem .5rem; border-radius: 99px; background: var(--green-soft); color: var(--green-dark); font-size: .7rem; font-weight: 850; text-transform: uppercase; }
+    .answer-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+    .answer-row input { min-width: 10rem; flex: 1 1 12rem; padding: .65rem .8rem; border: 1px solid #cbd7cd; border-radius: .7rem; background: white; color: var(--ink); }
+    .feedback { min-height: 1.5rem; margin: .55rem 0 0 !important; font-size: .88rem; font-weight: 700; }
+    .feedback.good { color: var(--green-dark); }
+    .feedback.retry { color: #a1452b; }
+    details { margin-top: .55rem; }
+    summary { color: var(--green-dark); cursor: pointer; font-size: .9rem; font-weight: 750; }
+    .checklist { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+    .check-item { display: flex; gap: .55rem; align-items: flex-start; padding: .6rem .65rem; border: 1px solid var(--line); border-radius: .7rem; background: white; font-size: .88rem; }
+    .check-item::before { color: var(--green); content: "✓"; font-weight: 900; }
+    .sources { color: var(--muted); font-size: .84rem; }
+    .site-footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+    .search-box { width: min(15rem, 38vw); padding: .5rem .75rem; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); }
+    .no-results { display: none; padding: 1rem; color: var(--muted); }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; max-height: none; display: flex; flex-wrap: wrap; align-items: center; gap: .2rem; padding: .75rem 1rem; border-bottom: 1px solid var(--line); background: var(--card); }
+      .side-title { width: 100%; margin: 0; }
+      .nav-link { margin: 0; padding: .35rem; }
+      .nav-link span:last-child { display: none; }
+      .lesson-grid { grid-template-columns: 1fr 1fr; }
+      main { padding-top: 1.3rem; }
+    }
+    @media (max-width: 680px) {
+      .topbar { align-items: flex-start; }
+      .brand { font-size: .88rem; }
+      .top-actions { gap: .35rem; }
+      .progress-label, .progress-track { display: none; }
+      .search-box { width: 8.5rem; }
+      .intro-grid, .overview-grid, .lesson-grid { grid-template-columns: 1fr; }
+      .overview-card { min-height: 0; }
+      .unit-heading { flex-wrap: wrap; }
+      .checklist { grid-template-columns: 1fr; }
+      .hero::after { right: -5rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">∑</span><span>Math Study Lab</span></div>
+      <div class="top-actions">
+        <label class="visually-hidden" for="search" style="position:absolute;clip:rect(0,0,0,0)">Search lessons</label>
+        <input class="search-box" id="search" type="search" placeholder="Search lessons…" aria-label="Search lessons">
+        <span class="progress-label" id="progress-label">0 of 6 complete</span>
+        <div class="progress-track" role="progressbar" aria-label="Module completion" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0"><div class="progress-fill" id="progress-fill"></div></div>
+        <button class="soft-button" id="simple-toggle" type="button" aria-pressed="false">Explain simply</button>
+      </div>
+    </header>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Study guide modules">
+        <p class="side-title">Your six-module path</p>
+        <a class="nav-link" href="#module-1"><span class="nav-num">1</span><span>Patterns in mathematics</span></a>
+        <a class="nav-link" href="#module-2"><span class="nav-num">2</span><span>Sets</span></a>
+        <a class="nav-link" href="#module-3"><span class="nav-num">3</span><span>Relations &amp; functions</span></a>
+        <a class="nav-link" href="#module-4"><span class="nav-num">4</span><span>Reasoning</span></a>
+        <a class="nav-link" href="#module-5"><span class="nav-num">5</span><span>Problem solving</span></a>
+        <a class="nav-link" href="#module-6"><span class="nav-num">6</span><span>Propositional logic</span></a>
+        <a class="nav-link" href="#coverage"><span class="nav-num">✓</span><span>Coverage checklist</span></a>
+      </nav>
+      <main>
+        <section class="hero" id="top">
+          <div class="eyebrow">GE Math · Mathematics in the Modern World</div>
+          <h1>Six modules. One friendly place to practice.</h1>
+          <p>A guided study companion for the SNSU Modules 1–6: clear summaries, worked examples, plain-language explanations, and exercises you can answer right here.</p>
+          <div class="hero-chips"><span class="chip">Learn at your pace</span><span class="chip">Practice + instant feedback</span><span class="chip">Works offline</span></div>
+        </section>
+        <div class="intro-grid" aria-label="How to use this study guide">
+          <div class="intro-card"><strong>01 · Learn</strong><span>Read the key ideas and the “why” behind each formula.</span></div>
+          <div class="intro-card"><strong>02 · Try</strong><span>Type an answer into a practice card, then check it.</span></div>
+          <div class="intro-card"><strong>03 · Remember</strong><span>Use “Explain simply” for a kid-friendly analogy. Progress saves on this device.</span></div>
+        </div>
+        <p class="section-kicker">The course at a glance</p>
+        <h2 class="overview-title">Choose a module to begin</h2>
+        <div class="overview-grid">
+          <a class="overview-card" href="#module-1"><span class="mini-label">Module 1</span><b>Patterns are everywhere</b><span>Fibonacci, golden ratio, fractals, sequences, and growth.</span></a>
+          <a class="overview-card" href="#module-2"><span class="mini-label">Module 2</span><b>Groups and set operations</b><span>Sets, subsets, complements, products, and Venn diagrams.</span></a>
+          <a class="overview-card" href="#module-3"><span class="mini-label">Module 3</span><b>Inputs and outputs</b><span>Relations, functions, domain, range, and applications.</span></a>
+          <a class="overview-card" href="#module-4"><span class="mini-label">Module 4</span><b>How we reason</b><span>Induction, deduction, conjectures, counterexamples, and logic puzzles.</span></a>
+          <a class="overview-card" href="#module-5"><span class="mini-label">Module 5</span><b>Turn words into math</b><span>Polya’s steps, percents, geometry, integers, and break-even.</span></a>
+          <a class="overview-card" href="#module-6"><span class="mini-label">Module 6</span><b>True, false, and “if…”</b><span>Propositions, logical operators, and truth tables.</span></a>
+        </div>
+
+        <section class="unit searchable" id="module-1" data-module="1">
+          <div class="unit-heading">
+            <span class="unit-number">01</span>
+            <div><h2>The nature of mathematics</h2><p>Look for patterns, describe them, and use them to understand the world.</p></div>
+          </div>
+          <div class="lesson-grid">
+            <div class="stack">
+              <article class="card">
+                <h3>Math is a way to describe patterns</h3>
+                <p>Mathematics is more than arithmetic: it is a language for patterns, shapes, quantity, and relationships. Nature gives examples such as symmetry, spirals, waves, branching trees, honeycombs, and rings in wood.</p>
+                <p class="simple"><strong>Explain simply:</strong> Math is like a pattern-finder. It helps us notice what repeats and make a good guess about what comes next.</p>
+                <h4>Fibonacci sequence</h4>
+                <p>Start with 0, 1 (or 1, 1). Each new term is the sum of the two before it.</p>
+                <span class="formula">0, 1, 1, 2, 3, 5, 8, 13, 21, 34, … &nbsp; | &nbsp; Fₙ = Fₙ₋₁ + Fₙ₋₂</span>
+                <p>Flower petals, pinecone and sunflower spirals are often described with Fibonacci numbers. These are common patterns, not a promise that every example in nature follows the sequence exactly.</p>
+                <h4>Golden ratio, Φ</h4>
+                <p>Φ is about 1.618. Ratios of neighboring Fibonacci numbers approach this value as the numbers grow: 13/8 ≈ 1.625; 21/13 ≈ 1.615.</p>
+                <span class="formula">If a &gt; b: (a + b) / a = a / b = Φ ≈ 1.618</span>
+                <p class="simple"><strong>Explain simply:</strong> Look at neighboring Fibonacci numbers and divide the bigger by the smaller. The answer gets closer to about 1.6.</p>
+              </article>
+              <article class="card">
+                <h3>Shapes and repeating patterns</h3>
+                <ul>
+                  <li><strong>Tessellation (tiling):</strong> shapes cover a flat surface with no gaps or overlaps. Examples include floor tiles, honeycomb cells, and some scales.</li>
+                  <li><strong>Fractal:</strong> a pattern repeats in a similar way at different sizes. Branching trees, coastlines, clouds, and some shells show fractal-like patterns.</li>
+                  <li><strong>Other patterns:</strong> hexagons (honeycomb and snowflakes), concentric circles (ripples and tree rings), symmetry, spirals, and patterns in space.</li>
+                  <li><strong>Abstract reasoning:</strong> find what changes or repeats in a sequence of shapes—color, size, position, or shape—and use the rule to choose what comes next.</li>
+                </ul>
+                <p class="simple"><strong>Explain simply:</strong> A tessellation is like a puzzle that covers the whole table neatly. A fractal is a big shape with little copies of its pattern inside.</p>
+                <div class="tip"><strong>Watch out:</strong> A picture can suggest a pattern, but observations alone do not prove a rule is always true. That is why mathematicians test their guesses.</div>
+              </article>
+              <article class="card">
+                <h3>Number patterns and population growth</h3>
+                <p>A sequence is an ordered list made by a rule. Look at differences (add/subtract), ratios (multiply/divide), or alternating rules before guessing.</p>
+                <p>For continuous exponential population growth, the module uses:</p>
+                <span class="formula">A = P e<sup>rt</sup> &nbsp; (e ≈ 2.718)</span>
+                <ul><li><strong>P</strong> is the starting population.</li><li><strong>r</strong> is the growth rate written as a decimal.</li><li><strong>t</strong> is elapsed time.</li><li><strong>A</strong> is the population after that time.</li></ul>
+                <p>Example: A = 30e<sup>0.02t</sup> means an initial population of 30 thousand, growing at 2% per year. At t = 0, A = 30 thousand; after 26 years, A ≈ 50.46 thousand.</p>
+                <p class="simple"><strong>Explain simply:</strong> Start with the original number, then let it grow by the same percentage again and again over time.</p>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Pattern practice</h3></div>
+                <p>Continue the Fibonacci list with the next three numbers: 13, 21, 34, 55, __, __, __.</p>
+                <div class="answer-row"><input aria-label="Your next three Fibonacci numbers" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="89,144,233">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>Each term adds the previous two: 34 + 55 = 89; 55 + 89 = 144; 89 + 144 = 233.</p></details>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Growth practice</h3></div>
+                <p>A model is A = 20e<sup>0.03t</sup>. What is the starting population (in the model’s units), at t = 0?</p>
+                <div class="answer-row"><input aria-label="Starting population" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="20">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>Substitute t = 0: A = 20e⁰ = 20 × 1 = 20. If the model’s population unit is thousands, that means 20,000 people.</p></details>
+              </article>
+            </div>
+            <aside class="stack">
+              <article class="card"><h3>Quick recap</h3><ul><li>Find the rule behind a pattern.</li><li>Fibonacci: add the previous two terms.</li><li>Tessellation: no gaps or overlaps.</li><li>Fractal: similar structure at different scales.</li><li>Exponential growth compounds over time.</li></ul></article>
+              <article class="card"><h3>Check yourself</h3><p>Can you explain why a honeycomb is a tessellation and name one natural pattern that looks fractal-like?</p><p class="simple"><strong>Simple answer:</strong> Honeycomb cells fit together without empty spaces; a tree’s branches repeat a branching shape.</p></article>
+            </aside>
+          </div>
+          <div class="completion-row"><button class="soft-button complete-button" type="button" data-complete="1">Mark complete</button></div>
+        </section>
+
+        <section class="unit searchable" id="module-2" data-module="2">
+          <div class="unit-heading">
+            <span class="unit-number">02</span>
+            <div><h2>The language of sets</h2><p>Sets are collections. Set symbols let us compare and combine collections precisely.</p></div>
+          </div>
+          <div class="lesson-grid">
+            <div class="stack">
+              <article class="card">
+                <h3>What is a set?</h3>
+                <p>A <strong>set</strong> is a well-defined collection of distinct objects. Write members inside braces. Order does not matter, and duplicates do not add new members: {1, 2, 2, 3} = {1, 2, 3}.</p>
+                <p>Two ways to describe one:</p>
+                <ul><li><strong>Roster:</strong> list members, e.g. {2, 4, 6, 8}.</li><li><strong>Set-builder:</strong> state the rule, e.g. {x ∈ ℤ | 0 &lt; x &lt; 10 and x is even}.</li></ul>
+                <span class="formula">x ∈ A means “x is in A” &nbsp; · &nbsp; x ∉ A means “x is not in A”</span>
+                <p><strong>Subset:</strong> A ⊆ B means every member of A is also in B. A proper subset A ⊊ B is contained in B but is not equal to B. Every set includes itself as a subset, and ∅ is a subset of every set. A = B exactly when each is a subset of the other.</p>
+                <p><strong>Cardinality:</strong> |A| counts the members. The empty set ∅ (or {}) has zero members. A <strong>partition</strong> splits a set into nonempty, non-overlapping parts that together contain every member.</p>
+                <p class="simple"><strong>Explain simply:</strong> A set is a labeled basket. A subset is a smaller basket whose items all came from the big basket.</p>
+              </article>
+              <article class="card">
+                <h3>Power sets and set operations</h3>
+                <p>The <strong>power set</strong> P(A) contains every subset of A, including ∅ and A. If A has n members, P(A) has 2<sup>n</sup> members.</p>
+                <span class="formula">A = {a, b} → P(A) = {∅, {a}, {b}, {a, b}} &nbsp; and &nbsp; |P(A)| = 2² = 4</span>
+                <div class="table-wrap"><table><thead><tr><th>Operation</th><th>Meaning</th><th>Example: A={1,2,3}, B={3,4}</th></tr></thead><tbody>
+                  <tr><td>Union A ∪ B</td><td>In A or B (or both)</td><td>{1,2,3,4}</td></tr>
+                  <tr><td>Intersection A ∩ B</td><td>In both</td><td>{3}</td></tr>
+                  <tr><td>Difference A \\ B</td><td>In A, not in B</td><td>{1,2}</td></tr>
+                  <tr><td>Complement A′</td><td>In the universal set U, not in A</td><td>Depends on U</td></tr>
+                  <tr><td>Symmetric difference A △ B</td><td>In exactly one of A and B</td><td>{1,2,4}</td></tr>
+                </tbody></table></div>
+                <p>Disjoint sets have no shared members: A ∩ B = ∅. Difference depends on order (A \\ B need not equal B \\ A). A × B is the <strong>Cartesian product</strong>: every ordered pair (a,b) with a ∈ A and b ∈ B. For finite sets, |A × B| = |A| × |B|.</p>
+                <p class="simple"><strong>Explain simply:</strong> Union means everyone invited to either party; intersection means people who went to both.</p>
+              </article>
+              <article class="card">
+                <h3>Venn diagrams and counting</h3>
+                <p>For two sets, avoid counting shared members twice:</p>
+                <span class="formula">|A ∪ B| = |A| + |B| − |A ∩ B|</span>
+                <p>For three sets, put the all-three intersection in the center first. Subtract it from each pairwise intersection to get pair-only regions, then use each set’s total to find its only-that-set region.</p>
+                <span class="formula">|A ∪ B ∪ C| = |A|+|B|+|C|−|A∩B|−|A∩C|−|B∩C|+|A∩B∩C|</span>
+                <p>Worked example from the module: 64 took math, 94 chemistry, 58 physics; pairwise counts are 26, 28, 22, and 14 took all three. Only math = 64 − (26−14) − (28−14) − 14 = 24. Only chemistry = 60; only physics = 22; only one course = 106.</p>
+                <p class="simple"><strong>Explain simply:</strong> Put the people who chose all three activities in the middle first. Then fill in the overlapping parts so nobody gets counted twice.</p>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Set-operation practice</h3></div>
+                <p>If A = {1, 2, 3} and B = {3, 4}, type A ∩ B (members shared by both).</p>
+                <div class="answer-row"><input aria-label="Intersection of A and B" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="3|{3}">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>Compare the lists. Only 3 appears in both, so A ∩ B = {3}.</p></details>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Venn-diagram practice</h3></div>
+                <p>Twenty people like tea, 15 like coffee, and 5 like both. How many like tea or coffee?</p>
+                <div class="answer-row"><input aria-label="Number who like tea or coffee" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="30">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>|T ∪ C| = 20 + 15 − 5 = 30. Subtract the shared five because they were counted twice.</p></details>
+              </article>
+            </div>
+            <aside class="stack">
+              <article class="card"><h3>Keep the symbols straight</h3><p><strong>∈</strong> asks if an object is inside a set. <strong>⊆</strong> compares whole sets. For example, 3 ∈ {1,2,3}, while {1,3} ⊆ {1,2,3}.</p><div class="callout">Braces matter: 0 is a number; {0} is a set with one member.</div></article>
+              <article class="card"><h3>Quick recap</h3><ul><li>Order and repeats do not matter in a set.</li><li>Union = either; intersection = both.</li><li>Complement needs a stated universal set.</li><li>Cartesian products make ordered pairs.</li><li>Venn diagrams help track overlaps.</li></ul></article>
+            </aside>
+          </div>
+          <div class="completion-row"><button class="soft-button complete-button" type="button" data-complete="2">Mark complete</button></div>
+        </section>
+
+        <section class="unit searchable" id="module-3" data-module="3">
+          <div class="unit-heading">
+            <span class="unit-number">03</span>
+            <div><h2>The language of relations and functions</h2><p>Pair inputs with outputs, then ask whether the rule behaves like a function.</p></div>
+          </div>
+          <div class="lesson-grid">
+            <div class="stack">
+              <article class="card">
+                <h3>Sets, ordered pairs, and relations</h3>
+                <p>An ordered pair (x,y) keeps its order: x is first, y is second. A <strong>relation</strong> from A to B is a collection of pairs from A × B. Relations can be shown as a list of pairs, a table, a graph, or a mapping diagram.</p>
+                <p>The <strong>domain</strong> is the set of first coordinates (inputs); the <strong>range</strong> is the set of second coordinates actually used (outputs). For {(−2,3),(4,5),(6,−5)}, domain = {−2,4,6}, range = {−5,3,5}.</p>
+                <p class="simple"><strong>Explain simply:</strong> A pair is a little “from → to” note. The domain is all the starts; the range is all the ends that were reached.</p>
+              </article>
+              <article class="card">
+                <h3>When is a relation a function?</h3>
+                <p>A <strong>function</strong> assigns every allowed input exactly one output. Different inputs are allowed to share an output. An input repeated with the same output is still fine; one input linked to two different outputs is not a function. If a declared domain includes an input with no output, it is not a function from that whole domain.</p>
+                <div class="tip"><strong>Vertical-line test:</strong> on a graph, if any vertical line crosses the graph more than once, it is not a function of x.</div>
+                <p>Common families named in the module: linear, inverse, constant, identity, and absolute-value functions. Two functions are equal when they have the same domain and give the same output for every input in that domain.</p>
+                <p class="simple"><strong>Explain simply:</strong> Think of a vending machine. Press one button (input), and it must give exactly one result (output). Two buttons may give the same snack.</p>
+              </article>
+              <article class="card">
+                <h3>Finding domain and range</h3>
+                <ul><li>For a list of ordered pairs: collect first coordinates for the domain, second coordinates for the range; list each value once.</li><li>For a rule: identify inputs that make the rule defined, then identify possible outputs.</li><li>For a real square root, the expression under the root must be ≥ 0.</li></ul>
+                <p>Example: f(x) = 2x + 1 has domain ℝ and range ℝ. For h(x) = √(x − 4), require x − 4 ≥ 0, so the domain is [4, ∞); square roots are nonnegative, so the range is [0, ∞).</p>
+                <p>Application example: four circular ponds of radius r fit inside a square with side 4r. Grass area = square area − pond area:</p>
+                <span class="formula">A(r) = (4r)² − 4πr² = (16 − 4π)r²</span>
+                <p>Weekly earnings with a Php 340 base salary and 6% commission on d pesos of sales: f(d) = 340 + 0.06d.</p>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Function check</h3></div>
+                <p>Is {(1,2), (1,3), (2,4)} a function? Answer yes or no.</p>
+                <div class="answer-row"><input aria-label="Is the relation a function?" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="no|not a function">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>Input 1 is paired with two different outputs (2 and 3), so the relation fails the “exactly one output per input” rule.</p></details>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Domain practice</h3></div>
+                <p>For h(x) = √(x − 4), what is the smallest allowed real input x?</p>
+                <div class="answer-row"><input aria-label="Smallest allowed input" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="4|x=4">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>x − 4 must be at least zero. Thus x ≥ 4, and the smallest allowed input is 4.</p></details>
+              </article>
+            </div>
+            <aside class="stack">
+              <article class="card"><h3>Quick test</h3><p>Check a relation in this order:</p><ol><li>List its input values.</li><li>See if any input has two different outputs.</li><li>If a whole domain is specified, check every domain value is assigned.</li></ol></article>
+              <article class="card"><h3>Notation note</h3><p>ℝ means real numbers. [4, ∞) means all real numbers from 4 upward, including 4. Parentheses exclude an endpoint; square brackets include it.</p></article>
+            </aside>
+          </div>
+          <div class="completion-row"><button class="soft-button complete-button" type="button" data-complete="3">Mark complete</button></div>
+        </section>
+
+        <section class="unit searchable" id="module-4" data-module="4">
+          <div class="unit-heading">
+            <span class="unit-number">04</span>
+            <div><h2>Inductive and deductive reasoning</h2><p>Use observations to make a conjecture; use rules to prove a conclusion.</p></div>
+          </div>
+          <div class="lesson-grid">
+            <div class="stack">
+              <article class="card">
+                <h3>Two ways to reason</h3>
+                <div class="table-wrap"><table><thead><tr><th>Inductive reasoning</th><th>Deductive reasoning</th></tr></thead><tbody>
+                  <tr><td>Specific examples → a general pattern or conjecture</td><td>General rule + specific facts → a necessary conclusion</td></tr>
+                  <tr><td>Suggests a rule; more examples may disprove it</td><td>If the premises and logic are sound, the conclusion follows</td></tr>
+                  <tr><td>Example: 3, 6, 9, 12, so guess 15 next</td><td>Supplementary angles sum to 180°. One is 120°, so the other is 60°</td></tr>
+                </tbody></table></div>
+                <p>A <strong>conjecture</strong> is a conclusion suggested by examples. Test universal claims with a <strong>counterexample</strong>: one case that breaks the claim proves it is not always true.</p>
+                <p>Example: “x² &gt; x for every x” is false: x = 1 gives 1² = 1, not greater than 1. Also, √(x²) = |x|, not always x; x = −3 is a counterexample to √(x²) = x.</p>
+                <p class="simple"><strong>Explain simply:</strong> Induction is seeing a few clues and guessing the rule. Deduction is using a rule you already know to solve one particular case.</p>
+              </article>
+              <article class="card">
+                <h3>Test a pattern, then prove a rule</h3>
+                <p>Consider this procedure: choose n, multiply by 8, add 6, divide by 2, subtract 3. Trying a few values suggests the answer is four times the start. To prove it for every n, use algebra:</p>
+                <span class="formula">(8n + 6) / 2 − 3 = 4n + 3 − 3 = 4n</span>
+                <p>Examples help you discover a conjecture; algebra verifies it for any starting number.</p>
+                <p class="simple"><strong>Explain simply:</strong> Try the number machine with a few numbers to guess what it does. Then use n as a mystery number to prove the machine’s rule always works.</p>
+              </article>
+              <article class="card">
+                <h3>Logic puzzles with a chart</h3>
+                <p>When matching people with jobs or roles, make a grid. Mark impossible pairings from each clue. When one person has only one possible role left, assign it; then remove that role from everyone else. Repeat until the chart is complete. This organizes deductive reasoning so clues are not forgotten.</p>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Induction practice</h3></div>
+                <p>Use the pattern 2, 5, 10, 17, 26, … to predict the next number.</p>
+                <div class="answer-row"><input aria-label="Next number in the sequence" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="37">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>The differences are +3, +5, +7, +9, so the next difference is likely +11. Then 26 + 11 = 37. This is a pattern-based conjecture.</p></details>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Deduction practice</h3></div>
+                <p>If every square is a rectangle, and shape S is a square, what must S also be?</p>
+                <div class="answer-row"><input aria-label="What must shape S be?" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="rectangle|a rectangle">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>Apply the general rule (“every square is a rectangle”) to the specific fact that S is a square. Therefore S is a rectangle.</p></details>
+              </article>
+            </div>
+            <aside class="stack">
+              <article class="card"><h3>Spot the difference</h3><ul><li>“I tested 5 cases and they worked, so this probably holds” → inductive.</li><li>“The rule applies to this case, so the conclusion must follow” → deductive.</li><li>One counterexample defeats an “all” or “every” claim.</li></ul></article>
+              <article class="card"><h3>Common caution</h3><p>A repeated pattern is evidence for a conjecture, not automatically a proof. To prove a general claim, show why it works for every allowed value.</p></article>
+            </aside>
+          </div>
+          <div class="completion-row"><button class="soft-button complete-button" type="button" data-complete="4">Mark complete</button></div>
+        </section>
+
+        <section class="unit searchable" id="module-5" data-module="5">
+          <div class="unit-heading">
+            <span class="unit-number">05</span>
+            <div><h2>Problem-solving strategies</h2><p>Translate the story into math, solve it, then check that the answer makes sense.</p></div>
+          </div>
+          <div class="lesson-grid">
+            <div class="stack">
+              <article class="card">
+                <h3>Polya’s four steps</h3>
+                <ol><li><strong>Understand:</strong> What is being asked? What facts are given? Choose a variable and label it.</li><li><strong>Devise a plan:</strong> Draw a diagram, make a table, or write an equation.</li><li><strong>Carry out the plan:</strong> Solve carefully, keeping units.</li><li><strong>Look back:</strong> Substitute/check, interpret, and write a complete answer.</li></ol>
+                <p class="simple"><strong>Explain simply:</strong> Read the puzzle, pick a plan, do the math, and check your work before you say “done.”</p>
+              </article>
+              <article class="card">
+                <h3>Translate common word problems</h3>
+                <ul>
+                  <li><strong>Numbers:</strong> “3 less than x” is x − 3. “Twice the difference of x and 1” is 2(x − 1).</li>
+                  <li><strong>Percents:</strong> turn p% into p/100. “Of” means multiply. 45% of 125 = 0.45 × 125 = 56.25. If a price x includes 8.25% tax, total = 1.0825x.</li>
+                  <li><strong>Rectangles:</strong> perimeter P = 2L + 2W. Translate “length is 1 more than 3 times width” as L = 3W + 1.</li>
+                  <li><strong>Angles:</strong> supplementary angles total 180°; complementary angles total 90°.</li>
+                  <li><strong>Consecutive integers:</strong> x, x+1, x+2. Consecutive even or odd integers: x, x+2, x+4 (start x is even or odd, respectively).</li>
+                  <li><strong>Break-even:</strong> cost C = revenue R. A fixed cost belongs in C; revenue is selling price × units sold.</li>
+                </ul>
+                <p class="simple"><strong>Explain simply:</strong> Give the unknown a name, turn each sentence into a math sentence, and use the story’s clues to solve for the name.</p>
+              </article>
+              <article class="card">
+                <h3>Worked examples</h3>
+                <h4>Tax included</h4><p>A case costs Php 541.25 after 8.25% tax. Let x be the before-tax cost: 1.0825x = 541.25, so x = Php 500. Check: 500 + 0.0825(500) = 541.25.</p>
+                <h4>Rectangle</h4><p>Length L = 3W + 1 and perimeter is 26: 2L + 2W = 26. Substitute: 2(3W + 1) + 2W = 26 → W = 3, L = 10 inches.</p>
+                <h4>Break-even</h4><p>Cost C = 50 + 5x; revenue R = 15x. Set equal: 50 + 5x = 15x → x = 5 items. At five items, both cost and revenue are 75.</p>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Discount practice</h3></div>
+                <p>A couch costs Php 440 after a 45% markdown. What was its original price?</p>
+                <div class="answer-row"><input aria-label="Original price of the couch" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="800|php 800">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>After a 45% discount, 55% remains. Let the original price be x: 0.55x = 440, so x = Php 800. Savings = Php 360.</p></details>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Consecutive-integer practice</h3></div>
+                <p>Three consecutive odd integers add to 57. Type all three, separated by commas.</p>
+                <div class="answer-row"><input aria-label="Three consecutive odd integers" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="17,19,21">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>Let them be x, x+2, x+4. Then 3x+6=57, so x=17. The integers are 17, 19, 21.</p></details>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Break-even practice</h3></div>
+                <p>Cost C = 1000 + 100x and revenue R = 150x. How many items must be sold to break even?</p>
+                <div class="answer-row"><input aria-label="Break-even number of items" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="20">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>Set cost equal to revenue: 1000 + 100x = 150x. Thus 1000 = 50x and x = 20 items.</p></details>
+              </article>
+            </div>
+            <aside class="stack">
+              <article class="card"><h3>Useful mini-formula sheet</h3><span class="formula">Percent of amount = (percent ÷ 100) × amount</span><span class="formula">Rectangle perimeter = 2L + 2W</span><span class="formula">Complementary = 90° · Supplementary = 180°</span><span class="formula">Break-even when C = R</span></article>
+              <article class="card"><h3>Look-back checklist</h3><ul><li>Does the value answer the actual question?</li><li>Are the units and labels included?</li><li>Does substituting the answer satisfy the original facts?</li><li>Is the answer reasonable (e.g. a whole number of items)?</li></ul></article>
+            </aside>
+          </div>
+          <div class="completion-row"><button class="soft-button complete-button" type="button" data-complete="5">Mark complete</button></div>
+        </section>
+
+        <section class="unit searchable" id="module-6" data-module="6">
+          <div class="unit-heading">
+            <span class="unit-number">06</span>
+            <div><h2>Propositions and truth tables</h2><p>Break statements into parts and track exactly when each logical sentence is true.</p></div>
+          </div>
+          <div class="lesson-grid">
+            <div class="stack">
+              <article class="card">
+                <h3>Propositions: statements with truth values</h3>
+                <p>A <strong>proposition</strong> is a declarative sentence that is either true (T) or false (F), but not both. A false statement is still a proposition. A question, command, or exclamation is not a proposition; an open sentence such as “x + 2 = 11” has no truth value until x is specified.</p>
+                <p>A <strong>simple proposition</strong> cannot be split into smaller propositions. A <strong>compound proposition</strong> joins or changes propositions using logical operators.</p>
+                <p class="simple"><strong>Explain simply:</strong> A proposition is a sentence you can honestly label true or false. “Close the door!” is a command, so it is neither.</p>
+              </article>
+              <article class="card">
+                <h3>The five common logical operators</h3>
+                <div class="table-wrap"><table><thead><tr><th>Name</th><th>Symbol</th><th>Read it as</th><th>When true?</th></tr></thead><tbody>
+                  <tr><td>Negation</td><td>¬p or ~p</td><td>not p</td><td>When p is false</td></tr>
+                  <tr><td>Conjunction</td><td>p ∧ q</td><td>p and q</td><td>Only when both are true</td></tr>
+                  <tr><td>Disjunction</td><td>p ∨ q</td><td>p or q</td><td>When at least one is true (inclusive or)</td></tr>
+                  <tr><td>Conditional</td><td>p → q</td><td>if p, then q</td><td>False only when p is true and q is false</td></tr>
+                  <tr><td>Biconditional</td><td>p ↔ q</td><td>p if and only if q</td><td>When p and q have the same truth value</td></tr>
+                </tbody></table></div>
+                <p>For p = “I study” and q = “I pass,” p ∧ q means “I study and I pass”; ¬p means “I do not study”; p → q means “If I study, then I pass.” In a conditional, p is the hypothesis and q the conclusion. “q only if p” translates as q → p.</p>
+                <div class="callout"><strong>Conditional memory trick:</strong> “If p, then q” makes a promise only when p happens. It is broken only if p happens but q does not.</div>
+                <p class="simple"><strong>Explain simply:</strong> “AND” needs both boxes checked. “OR” needs at least one. “If p then q” is only broken when p happens but q fails.</p>
+              </article>
+              <article class="card">
+                <h3>Truth tables show every possibility</h3>
+                <p>With n simple propositions, a complete truth table has 2<sup>n</sup> rows. Build columns for the basic variables first, then evaluate the inside parts of the compound statement one step at a time.</p>
+                <div class="table-wrap"><table><thead><tr><th>p</th><th>q</th><th>¬p</th><th>p ∧ q</th><th>p ∨ q</th><th>p → q</th><th>p ↔ q</th></tr></thead><tbody>
+                  <tr><td>T</td><td>T</td><td>F</td><td>T</td><td>T</td><td>T</td><td>T</td></tr>
+                  <tr><td>T</td><td>F</td><td>F</td><td>F</td><td>T</td><td>F</td><td>F</td></tr>
+                  <tr><td>F</td><td>T</td><td>T</td><td>F</td><td>T</td><td>T</td><td>F</td></tr>
+                  <tr><td>F</td><td>F</td><td>T</td><td>F</td><td>F</td><td>T</td><td>T</td></tr>
+                </tbody></table></div>
+                <p>A <strong>tautology</strong> is true in every row, e.g. p ∨ ¬p. A <strong>contradiction</strong> is false in every row, e.g. p ∧ ¬p. A statement that is true in some rows and false in others is a contingency.</p>
+                <p class="simple"><strong>Explain simply:</strong> A truth table is a checklist of every possible true/false setting, so no possibility gets missed.</p>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Proposition practice</h3></div>
+                <p>Is “What time is it?” a proposition? Answer yes or no.</p>
+                <div class="answer-row"><input aria-label="Is the question a proposition?" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="no">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>It is a question, not a declarative sentence with a truth value. Therefore it is not a proposition.</p></details>
+              </article>
+              <article class="card exercise" data-answers>
+                <div class="exercise-head"><span class="exercise-badge">Try it</span><h3>Truth-table practice</h3></div>
+                <p>If p is false and q is false, what is the truth value of p → q?</p>
+                <div class="answer-row"><input aria-label="Truth value of p implies q" autocomplete="off"><button class="primary-button check-answer" type="button" data-answer="true|t">Check</button></div>
+                <p class="feedback" aria-live="polite"></p>
+                <details><summary>Show the steps</summary><p>A conditional is false only in the T → F row. With p = F, the conditional is true, regardless of q.</p></details>
+              </article>
+            </div>
+            <aside class="stack">
+              <article class="card"><h3>Translate carefully</h3><ul><li>“But” usually acts like AND.</li><li>Inclusive “or” allows both parts to be true.</li><li>“Not p” negates the whole proposition p.</li><li>“p only if q” means p → q.</li><li>“p if and only if q” means each implies the other.</li></ul></article>
+              <article class="card"><h3>Truth-table recipe</h3><ol><li>Count distinct variables.</li><li>Make 2<sup>n</sup> rows.</li><li>Fill p, q, r… in all true/false combinations.</li><li>Work from parentheses outward.</li><li>Classify the final column.</li></ol></article>
+            </aside>
+          </div>
+          <div class="completion-row"><button class="soft-button complete-button" type="button" data-complete="6">Mark complete</button></div>
+        </section>
+
+        <section class="unit searchable" id="coverage">
+          <p class="section-kicker">Before your quiz</p>
+          <h2 class="overview-title">Coverage checklist</h2>
+          <div class="card">
+            <p>Use this checklist to spot any topic that needs another review. It follows the main content and objectives in the six supplied modules.</p>
+            <div class="checklist">
+              <div class="check-item">Module 1: why mathematics matters; patterns in nature</div>
+              <div class="check-item">Module 1: Fibonacci sequence and golden ratio</div>
+              <div class="check-item">Module 1: tessellations, fractals, hexagons, concentric circles, symmetry</div>
+              <div class="check-item">Module 1: number patterns, abstract reasoning, population growth</div>
+              <div class="check-item">Module 2: roster/set-builder notation, membership, subsets, equality</div>
+              <div class="check-item">Module 2: empty set, cardinality, power set, partition</div>
+              <div class="check-item">Module 2: union, intersection, difference, complement, symmetric difference</div>
+              <div class="check-item">Module 2: Cartesian product and Venn-diagram word problems</div>
+              <div class="check-item">Module 3: ordered pairs, relations, domain and range</div>
+              <div class="check-item">Module 3: function rule, mapping diagrams, vertical-line test</div>
+              <div class="check-item">Module 3: function families, equality, domains/ranges, applications</div>
+              <div class="check-item">Module 4: inductive vs. deductive reasoning; conjectures and counterexamples</div>
+              <div class="check-item">Module 4: algebraic deduction and chart-based logic puzzles</div>
+              <div class="check-item">Module 5: Polya’s four problem-solving steps</div>
+              <div class="check-item">Module 5: number, percent, geometry, and angle problems</div>
+              <div class="check-item">Module 5: consecutive integers and break-even problems</div>
+              <div class="check-item">Module 6: propositions, truth values, simple/compound statements</div>
+              <div class="check-item">Module 6: negation, AND, OR, conditional, biconditional</div>
+              <div class="check-item">Module 6: truth tables, tautologies, contradictions</div>
+            </div>
+          </div>
+          <p class="section-kicker">Study tip</p>
+          <div class="card"><p>Try each exercise before opening its steps. If an answer is marked incorrect, check the format or try again—the checker accepts common variations in spacing, braces, and capitalization. Mark a module complete when you can explain its main idea without looking.</p></div>
+        </section>
+        <footer class="site-footer">
+          <p>Made as an offline study companion based on the six GE Math Learning Module PDFs provided: Modules 1–6 (SNSU). The original PDFs remain the source of truth for instructor-specific instructions and assessments.</p>
+          <p>Tip: use your browser’s Print command to save a paper copy. Your module completion and explain-simply preference are saved locally in this browser.</p>
+        </footer>
+      </main>
+    </div>
+  </div>
+  <script>
+    (() => {
+      const progressKey = "math-study-lab-complete-v1";
+      const simpleKey = "math-study-lab-simple-v1";
+      let completed = [];
+      try { completed = JSON.parse(localStorage.getItem(progressKey) || "[]"); } catch { completed = []; }
+
+      const renderProgress = () => {
+        document.querySelectorAll("[data-complete]").forEach(button => {
+          const id = Number(button.dataset.complete);
+          const done = completed.includes(id);
+          button.textContent = done ? "Completed ✓" : "Mark complete";
+          button.setAttribute("aria-pressed", String(done));
+          document.querySelector(`.nav-link[href="#module-${id}"]`)?.classList.toggle("done", done);
+        });
+        document.getElementById("progress-label").textContent = `${completed.length} of 6 complete`;
+        document.querySelector('[role="progressbar"]').setAttribute("aria-valuenow", String(completed.length));
+        document.getElementById("progress-fill").style.width = `${completed.length / 6 * 100}%`;
+      };
+
+      document.querySelectorAll("[data-complete]").forEach(button => {
+        button.addEventListener("click", () => {
+          const id = Number(button.dataset.complete);
+          completed = completed.includes(id) ? completed.filter(item => item !== id) : [...completed, id];
+          try { localStorage.setItem(progressKey, JSON.stringify(completed)); } catch { /* Progress still works for this page view. */ }
+          renderProgress();
+        });
+      });
+      renderProgress();
+
+      const simpleToggle = document.getElementById("simple-toggle");
+      let simpleMode = false;
+      try { simpleMode = localStorage.getItem(simpleKey) === "true"; } catch { /* Use the default when storage is unavailable. */ }
+      const setSimpleMode = enabled => {
+        simpleMode = enabled;
+        document.body.classList.toggle("kid-mode", enabled);
+        simpleToggle.setAttribute("aria-pressed", String(enabled));
+        simpleToggle.textContent = enabled ? "Hide simple explanations" : "Explain simply";
+        try { localStorage.setItem(simpleKey, String(enabled)); } catch { /* The toggle remains usable without storage. */ }
+      };
+      simpleToggle.addEventListener("click", () => setSimpleMode(!simpleMode));
+      setSimpleMode(simpleMode);
+
+      document.querySelectorAll(".check-answer").forEach(button => {
+        button.addEventListener("click", () => {
+          const card = button.closest("[data-answers]");
+          const input = card.querySelector("input");
+          const feedback = card.querySelector(".feedback");
+          const normalize = value => value.toLowerCase().trim()
+            .replace(/[{}()\s]/g, "")
+            .replace(/,/g, "")
+            .replace(/[−–]/g, "-")
+            .replace(/∅/g, "emptyset")
+            .replace(/°/g, "");
+          const accepted = button.dataset.answer.split("|").map(normalize);
+          const correct = accepted.includes(normalize(input.value));
+          feedback.textContent = correct
+            ? "Correct—nice work! Open “Show the steps” to review why."
+            : input.value.trim()
+              ? "Not quite yet. Recheck the rule, then try again or open “Show the steps.”"
+              : "Type your answer above first.";
+          feedback.className = `feedback ${correct ? "good" : "retry"}`;
+        });
+        button.closest("[data-answers]").querySelector("input").addEventListener("keydown", event => {
+          if (event.key === "Enter") button.click();
+        });
+      });
+
+      const search = document.getElementById("search");
+      const searchable = [...document.querySelectorAll(".searchable")];
+      search.addEventListener("input", () => {
+        const query = search.value.trim().toLowerCase();
+        searchable.forEach(section => {
+          section.hidden = Boolean(query) && !section.textContent.toLowerCase().includes(query);
+        });
+        document.querySelector(".no-results")?.remove();
+        if (query && !searchable.some(section => !section.hidden)) {
+          const note = document.createElement("p");
+          note.className = "no-results";
+          note.textContent = "No lesson matches that search. Try another word.";
+          note.style.display = "block";
+          search.closest(".topbar").after(note);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
